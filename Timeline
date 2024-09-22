@@ -1,0 +1,9 @@
+Timeline: 
+1. Analyzing one video
+- lableling manually DAiSEE dataset for facial expressions classifiers.
+- using ROC graph for treshold optimization.
+2. Running the code over the original dataset 
+- creating csv that contains model classifiers for each video. 
+- using random forest in order to train the model
+3. Measuring and calculating model success.
+- using correlation matrix via pandas, F1 and etc.
