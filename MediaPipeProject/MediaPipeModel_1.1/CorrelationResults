@@ -1,0 +1,38 @@
+C:\Python312\python.exe C:\Users\idowe\PycharmProjects\MindWanderingDetection\CorrelationComputation.py 
+Data Preview:
+           ClipID  Label  Blinking  Facial Twitching  Smiling  Head Tilt
+0  1100011002.avi   14.0         1                 2        0          0
+1  1100011003.avi   14.0         1                 0        0          0
+2  1100011004.avi   15.0         1                 0        0          1
+3  1100011005.avi   15.0         1                 0        0          1
+4  1100011006.avi   15.0         1                 2        0          2
+
+Unique labels in the data: [14. 15.  1.  9. 10.  5. 11. 13.  2.  6.  3.  7. nan]
+
+Missing values in each column:
+Blinking              0
+Facial Twitching      0
+Smiling               0
+Head Tilt             0
+Label               126
+dtype: int64
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           1       0.32      0.14      0.19       339
+           2       0.23      0.11      0.15       215
+           3       0.00      0.00      0.00        31
+           5       0.03      0.06      0.04        36
+           6       0.00      0.00      0.00         7
+           7       0.00      0.00      0.00         1
+           9       0.08      0.12      0.10        48
+          10       0.00      0.00      0.00        18
+          11       0.00      0.00      0.00         2
+          13       0.00      0.33      0.01         3
+          14       0.09      0.08      0.08       116
+          15       0.24      0.11      0.15       255
+
+    accuracy                           0.11      1071
+   macro avg       0.08      0.08      0.06      1071
+weighted avg       0.22      0.11      0.14      1071
