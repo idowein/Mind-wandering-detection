@@ -1,15 +1,3 @@
-**Hello!**
-
-I'm glad to hear that the script is now working as expected. Based on your request, I'll provide two things:
-
-1. **A 500-word conclusion** summarizing the process we went through to reach the final detection model and explaining exactly what the algorithm does.
-
-2. **An updated script** that processes all your training data, creates a CSV file with the results, and displays progress using `tqdm`.
-
----
-
-## **1. Conclusion**
-
 ### **Process Overview**
 
 Over the course of our collaboration, we systematically developed a facial expression detection model tailored to accurately identify blinking, smiling, and head movements in video data. The journey began with a basic implementation using MediaPipe's Face Mesh for landmark detection and OpenCV for video processing. As we progressed, we iteratively refined the algorithm to address specific challenges and enhance its performance based on your feedback and requirements.
