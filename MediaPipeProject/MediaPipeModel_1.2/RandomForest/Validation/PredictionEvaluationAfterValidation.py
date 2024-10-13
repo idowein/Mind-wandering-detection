@@ -1,4 +1,6 @@
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
 
 def evaluate_model_performance(predictions_csv_path, labels_csv_path):
@@ -21,11 +23,8 @@ def evaluate_model_performance(predictions_csv_path, labels_csv_path):
         return
 
     # Remove file extensions from 'Video Name' in both DataFrames
-    def remove_extension(video_name):
-        return str(video_name).split('.')[0]
-
-    predictions_df['Video Name'] = predictions_df['Video Name'].apply(remove_extension)
-    labels_df['Video Name'] = labels_df['Video Name'].apply(remove_extension)
+    predictions_df['Video Name'] = predictions_df['Video Name'].apply(lambda x: str(x).split('.')[0])
+    labels_df['Video Name'] = labels_df['Video Name'].apply(lambda x: str(x).split('.')[0])
 
     # Merge the two DataFrames on 'Video Name'
     merged_df = pd.merge(predictions_df, labels_df, on='Video Name', how='inner')
@@ -36,15 +35,16 @@ def evaluate_model_performance(predictions_csv_path, labels_csv_path):
         return
 
     # Extract true labels and predicted labels
-    y_true = merged_df['Label']
-    y_pred = merged_df['Predicted_Label']
+    y_true = merged_df['Label'].astype(int)
+    y_pred = merged_df['Predicted_Label'].astype(int)
 
-    # Ensure labels are integers
-    y_true = y_true.astype(int)
-    y_pred = y_pred.astype(int)
+    # Print class distribution
+    print("\nClass Distribution in Predictions and Labels:")
+    print("Predicted Labels Distribution:\n", y_pred.value_counts().sort_index())
+    print("True Labels Distribution:\n", y_true.value_counts().sort_index())
 
     # Define the labels and class names
-    labels = [1, 2, 3, 4]
+    labels = [4, 1, 3, 2]  # Assuming 1 = Frustration, 2 = Engagement, 3 = Confusion, 4 = Boredom
     class_names = ['Frustration', 'Engagement', 'Confusion', 'Boredom']
 
     # Compute evaluation metrics
@@ -53,7 +53,7 @@ def evaluate_model_performance(predictions_csv_path, labels_csv_path):
     recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
     f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
 
-    # Display the results
+    # Display overall metrics
     print("\nModel Evaluation Metrics:")
     print(f"Accuracy:  {accuracy:.4f}")
     print(f"Precision: {precision:.4f}")
@@ -64,11 +64,14 @@ def evaluate_model_performance(predictions_csv_path, labels_csv_path):
     print("\nClassification Report:")
     print(classification_report(y_true, y_pred, labels=labels, target_names=class_names, zero_division=0))
 
-    # Display the confusion matrix
-    print("\nConfusion Matrix:")
+    # Display the confusion matrix as a heatmap
     cm = confusion_matrix(y_true, y_pred, labels=labels)
-    cm_df = pd.DataFrame(cm, index=class_names, columns=class_names)
-    print(cm_df)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', xticklabels=class_names, yticklabels=class_names, cmap="YlGnBu")
+    plt.title("Confusion Matrix")
+    plt.xlabel("Predicted Labels")
+    plt.ylabel("True Labels")
+    plt.show()
 
 if __name__ == "__main__":
     # Replace with the path to your predictions CSV file
