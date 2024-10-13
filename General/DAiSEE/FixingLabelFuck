@@ -1,0 +1,356 @@
+**Hello!**
+
+I understand that you're facing an issue with your original labeled CSV file. Specifically:
+
+- **Problem:** In the same row of your CSV file, there are scores or signals for multiple levels of understanding (e.g., **Engagement**, **Confusion**, **Boredom**, **Frustration**), which shouldn't happen because a single instance should be classified into one level of understanding.
+
+- **Your Goal:** You want to process the CSV so that, for each row, the model takes the **highest score** among the levels of understanding and assigns the label corresponding to that level.
+
+---
+
+## **Solution Overview**
+
+To address this issue, we'll:
+
+1. **Read the Original Labeled CSV File**
+
+   - The CSV contains columns for **'Video Name'** and the levels of understanding, each with a score.
+
+2. **Determine the Highest Scoring Level for Each Row**
+
+   - For each row, identify which level of understanding has the highest score.
+
+3. **Assign the Label Based on the Highest Score**
+
+   - Map the highest scoring level to a label (`1` to `4`), according to your predefined mapping.
+
+4. **Handle Ties (If Applicable)**
+
+   - If multiple levels have the same highest score, decide how to assign the label (e.g., assign all applicable labels, choose one based on priority, or flag for manual review).
+
+5. **Create a New CSV File**
+
+   - The new CSV will contain **'Video Name'** and the assigned **'Label'**.
+
+---
+
+## **Python Script**
+
+Here's a Python script that implements the solution:
+
+```python
+import pandas as pd
+
+def assign_label_based_on_highest_score(input_csv_path, output_csv_path):
+    # Load the CSV file
+    data = pd.read_csv(input_csv_path)
+    
+    # Clean column names (remove leading/trailing whitespace)
+    data.columns = data.columns.str.strip()
+    
+    # Display the first few rows
+    print("First few rows of the input dataset:")
+    print(data.head())
+    
+    # Define the columns representing the levels of understanding
+    level_columns = ['Engagement', 'Confusion', 'Frustration', 'Boredom']
+    
+    # Ensure that the level columns exist in the data
+    missing_columns = [col for col in level_columns if col not in data.columns]
+    if missing_columns:
+        print(f"\nError: The dataset is missing the following required columns: {missing_columns}")
+        return
+    
+    # Create a mapping from column names to label numbers
+    label_mapping = {
+        'Frustration': 1,
+        'Engagement': 2,
+        'Confusion': 3,
+        'Boredom': 4
+    }
+    
+    # Function to determine the label based on the highest score
+    def get_label(row):
+        # Extract the scores for all levels
+        scores = row[level_columns]
+        # Find the maximum score
+        max_score = scores.max()
+        # Find the levels with the maximum score
+        max_levels = scores[scores == max_score].index.tolist()
+        
+        if len(max_levels) == 1:
+            # Only one level has the highest score
+            return label_mapping[max_levels[0]]
+        elif len(max_levels) > 1:
+            # Multiple levels have the same highest score
+            # Decide how to handle ties (e.g., choose based on priority)
+            # For this example, we'll choose the level with the highest priority
+            for col in level_columns:
+                if col in max_levels:
+                    return label_mapping[col]
+        else:
+            # No score available (all scores are NaN)
+            return None
+    
+    # Apply the function to each row to create the 'Label' column
+    data['Label'] = data.apply(get_label, axis=1)
+    
+    # Check for rows where no label was assigned
+    if data['Label'].isnull().any():
+        print("\nWarning: Some rows did not have any scores. These rows will be removed.")
+        data = data.dropna(subset=['Label'])
+    
+    # Convert 'Label' column to integer
+    data['Label'] = data['Label'].astype(int)
+    
+    # Create a new DataFrame with 'Video Name' and 'Label'
+    output_data = data[['Video Name', 'Label']]
+    
+    # Save the new DataFrame to a CSV file
+    output_data.to_csv(output_csv_path, index=False)
+    print(f"\nNew CSV file with labels saved to '{output_csv_path}'")
+    
+    # Display the first few rows of the output data
+    print("\nFirst few rows of the output dataset:")
+    print(output_data.head())
+
+if __name__ == "__main__":
+    # Replace with the path to your input CSV file
+    input_csv_path = r'C:\path\to\your\validation_labeled.csv'
+    
+    # Replace with the desired output CSV file path
+    output_csv_path = r'C:\path\to\your\validation_labels_combined.csv'
+    
+    assign_label_based_on_highest_score(input_csv_path, output_csv_path)
+```
+
+---
+
+## **Instructions**
+
+### **1. Prepare Your CSV File**
+
+- Ensure that your CSV file contains:
+  - A **'Video Name'** column.
+  - Columns for each level of understanding (**'Engagement'**, **'Confusion'**, **'Frustration'**, **'Boredom'**).
+  - The scores for each level are numerical values (e.g., counts, probabilities).
+
+### **2. Update the File Paths**
+
+- In the `if __name__ == "__main__":` block, update:
+  ```python
+  input_csv_path = r'C:\path\to\your\validation_labeled.csv'
+  output_csv_path = r'C:\path\to\your\validation_labels_combined.csv'
+  ```
+  - Replace the paths with the actual locations of your input and output CSV files.
+
+### **3. Run the Script**
+
+- Save the script as `assign_label_based_on_highest_score.py`.
+- Open a terminal or command prompt.
+- Navigate to the directory where the script is saved.
+- Run the script:
+  ```bash
+  python assign_label_based_on_highest_score.py
+  ```
+
+---
+
+## **Explanation of the Script**
+
+### **Key Components**
+
+#### **1. Reading the CSV File**
+
+```python
+data = pd.read_csv(input_csv_path)
+data.columns = data.columns.str.strip()
+```
+
+- Reads the CSV file into a DataFrame and cleans the column names.
+
+#### **2. Defining Level Columns and Label Mapping**
+
+```python
+level_columns = ['Engagement', 'Confusion', 'Frustration', 'Boredom']
+
+label_mapping = {
+    'Frustration': 1,
+    'Engagement': 2,
+    'Confusion': 3,
+    'Boredom': 4
+}
+```
+
+- Lists the columns representing the levels of understanding.
+- Maps each level to a numerical label.
+
+#### **3. Determining the Label Based on the Highest Score**
+
+```python
+def get_label(row):
+    scores = row[level_columns]
+    max_score = scores.max()
+    max_levels = scores[scores == max_score].index.tolist()
+    
+    if len(max_levels) == 1:
+        return label_mapping[max_levels[0]]
+    elif len(max_levels) > 1:
+        # Handle ties by choosing the level with the highest priority
+        for col in level_columns:
+            if col in max_levels:
+                return label_mapping[col]
+    else:
+        return None
+```
+
+- For each row:
+  - Retrieves the scores for all levels.
+  - Identifies the maximum score.
+  - Determines which level(s) have the maximum score.
+  - **If there's a single highest score**, assigns the corresponding label.
+  - **If there's a tie**, assigns the label based on the order in `level_columns` (priority order).
+  - **If all scores are NaN or missing**, returns `None`.
+
+#### **4. Applying the Label Assignment Function**
+
+```python
+data['Label'] = data.apply(get_label, axis=1)
+```
+
+- Applies the `get_label` function to each row to create the `'Label'` column.
+
+#### **5. Handling Missing Labels**
+
+```python
+if data['Label'].isnull().any():
+    print("\nWarning: Some rows did not have any scores. These rows will be removed.")
+    data = data.dropna(subset=['Label'])
+```
+
+- Removes rows where no label could be assigned.
+
+#### **6. Saving the Output**
+
+```python
+output_data = data[['Video Name', 'Label']]
+output_data.to_csv(output_csv_path, index=False)
+```
+
+- Creates a new DataFrame with the necessary columns and saves it to a CSV file.
+
+---
+
+## **Handling Ties and Priorities**
+
+- **Ties:** When multiple levels have the same highest score, the script chooses the label based on the **priority order** defined in `level_columns`.
+- **Priority Order:** The levels are ordered in `level_columns` from highest to lowest priority.
+  ```python
+  level_columns = ['Engagement', 'Confusion', 'Frustration', 'Boredom']
+  ```
+  - **Engagement** has the highest priority.
+  - **Confusion** is next.
+  - **Frustration** follows.
+  - **Boredom** has the lowest priority.
+
+- **Example:** If both **Engagement** and **Confusion** have the highest score in a row, the label assigned will be **2** (Engagement), due to its higher priority.
+
+---
+
+## **Example**
+
+Suppose your input CSV looks like this:
+
+| Video Name    | Engagement | Confusion | Frustration | Boredom |
+|---------------|------------|-----------|-------------|---------|
+| video1.mp4    | 5          | 3         | 2           | 1       |
+| video2.mp4    | 2          | 5         | 5           | 3       |
+| video3.mp4    | 0          | 0         | 0           | 0       |
+| video4.mp4    | 4          | 4         | 4           | 4       |
+| video5.mp4    | NaN        | NaN       | NaN         | NaN     |
+
+- **Row 1 (video1.mp4):**
+  - Highest score is **5** for **Engagement**.
+  - Assigned label **2** (Engagement).
+
+- **Row 2 (video2.mp4):**
+  - Highest score is **5** for **Confusion** and **Frustration**.
+  - Between **Confusion** and **Frustration**, **Confusion** has higher priority.
+  - Assigned label **3** (Confusion).
+
+- **Row 3 (video3.mp4):**
+  - All scores are **0**.
+  - Highest score is **0**.
+  - All levels have the same score; **Engagement** has highest priority.
+  - Assigned label **2** (Engagement).
+
+- **Row 4 (video4.mp4):**
+  - All scores are **4**.
+  - Highest score is **4**.
+  - Multiple levels tied; **Engagement** has highest priority.
+  - Assigned label **2** (Engagement).
+
+- **Row 5 (video5.mp4):**
+  - All scores are **NaN**.
+  - No score available.
+  - Row will be removed.
+
+After running the script, the output CSV will look like:
+
+| Video Name    | Label |
+|---------------|-------|
+| video1.mp4    | 2     |
+| video2.mp4    | 3     |
+| video3.mp4    | 2     |
+| video4.mp4    | 2     |
+
+---
+
+## **Additional Considerations**
+
+### **Adjusting Priority Order**
+
+- If you wish to change the priority order, reorder the `level_columns` list.
+  ```python
+  level_columns = ['Confusion', 'Frustration', 'Engagement', 'Boredom']
+  ```
+  - Now, **Confusion** has the highest priority.
+
+### **Handling Zero Scores**
+
+- If you consider zero scores as no signal, you might want to treat rows where all scores are zero differently.
+- Modify the `get_label` function to handle this case.
+
+  ```python
+  def get_label(row):
+      scores = row[level_columns]
+      if scores.isnull().all():
+          return None
+      max_score = scores.max()
+      if max_score == 0:
+          return None  # No signal detected
+      max_levels = scores[scores == max_score].index.tolist()
+      # Rest of the function remains the same
+  ```
+
+### **Handling Missing Data**
+
+- Ensure that your data does not contain unexpected missing values (`NaN`).
+- You can fill missing values with zeros or another appropriate value before processing.
+  ```python
+  data[level_columns] = data[level_columns].fillna(0)
+  ```
+
+---
+
+## **Conclusion**
+
+By implementing the script above, you can:
+
+- **Assign labels based on the highest score** for each row in your CSV.
+- **Handle cases with multiple highest scores** by using a defined priority order.
+- **Create a clean dataset** that can be used for model evaluation and analysis.
+
+---
+
+**Let me know if you have any questions or need further assistance in customizing the script to fit your data. I'm here to help!**
