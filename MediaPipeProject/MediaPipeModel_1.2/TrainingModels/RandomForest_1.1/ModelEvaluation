@@ -1,0 +1,36 @@
+C:\Python312\python.exe C:\Users\idowe\PycharmProjects\MindWanderingDetection\PredictionEvaluationAfterValidation.py 
+
+Class Distribution in Predictions and Labels:
+Predicted Labels Distribution:
+ Predicted_Label
+1    1396
+2      33
+Name: count, dtype: int64
+True Labels Distribution:
+ Label
+1    1223
+2     152
+3      29
+4      25
+Name: count, dtype: int64
+
+Model Evaluation Metrics:
+Accuracy:  0.8390
+Precision: 0.7455
+Recall:    0.8390
+F1 Score:  0.7856
+
+Classification Report:
+              precision    recall  f1-score   support
+
+ Frustration       0.00      0.00      0.00        25
+  Engagement       0.86      0.98      0.91      1223
+   Confusion       0.00      0.00      0.00        29
+     Boredom       0.12      0.03      0.04       152
+
+    accuracy                           0.84      1429
+   macro avg       0.24      0.25      0.24      1429
+weighted avg       0.75      0.84      0.79      1429
+
+
+Process finished with exit code 0
