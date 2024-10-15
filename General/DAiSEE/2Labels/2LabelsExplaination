@@ -1,0 +1,10 @@
+You want to create a new CSV file with two labels:
+
+1: Engagement
+2: Non-Engagement
+For each row, you want to:
+
+Sum the levels of boredom, confusion, and frustration.
+If the sum of boredom + confusion + frustration is greater than the engagement level, label the row as 2 (Non-Engagement).
+If the engagement level is greater than the sum of the other three levels, label the row as 1 (Engagement).
+I will provide you with a Python script that performs this operation and generates a new CSV file with the desired labels.
